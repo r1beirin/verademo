@@ -30,11 +30,11 @@ stages:
     #     publishLocation: 'Container'
 # Publish Pipeline Artifacts v1
 # Publish (upload) a file or directory as a named artifact for the current run.
-    - task: PublishPipelineArtifact@1
-      inputs:
-        targetPath: '$(System.ArtifactsDirectory)'
-        artifact: 'verademo.war'
-        publishLocation: 'pipeline'
+    # - task: PublishPipelineArtifact@1
+    #   inputs:
+    #     targetPath: '$(System.ArtifactsDirectory)'
+    #     artifact: 'verademo.war'
+    #     publishLocation: 'pipeline'
 
 - stage: SAST
   displayName: SAST
@@ -44,7 +44,11 @@ stages:
     steps:
     - task: DownloadPipelineArtifact@2
       inputs:
-        buildType: 'current'
+        buildType: 'specific'
+        project: 'c1b07700-a2ac-4af5-9433-7272402fe238'
+        definition: '2'
+        specificBuildWithTriggering: true
+        buildVersionToDownload: 'latest'
         artifactName: 'verademo.war'
         targetPath: '$(System.ArtifactsDirectory)'
     - task: Veracode@3
