@@ -32,8 +32,8 @@ stages:
 # Publish (upload) a file or directory as a named artifact for the current run.
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(System.ArtifactsDirectory)'
-        artifact: 'verademo.war'
+        targetPath: 'target/verademo.war'
+        artifact: 'drop'
         publishLocation: 'pipeline'
 
 - stage: SAST
