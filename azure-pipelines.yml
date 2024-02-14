@@ -1,8 +1,3 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-# This is an example of using VeraDemo Java test application with the Veracode Static Pipeline scanner.  A Veracode subscription is required.
 trigger:
 - main
 pool:
@@ -20,13 +15,16 @@ steps:
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
 
-- task: Veracode@3
+- task: Bash@3
+  displayName: Veracode Pipeline Scan
   inputs:
-    ConnectionDetailsSelection: 'Credentials'
-    apiId: '$(VERACODE_API_ID)'
-    apiKey: '$(VERACODE_API_KEY)'
-    veracodeAppProfile: 'Teste Mateus Azure DevOps'
-    version: '$(build.buildNumber)'
-    filepath: '$(build.artifactstagingdirectory)'
-    importResults: true
-    maximumWaitTime: '360'
+    targetType: "inline"
+    script: |
+      curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+      unzip -o pipeline-scan-LATEST.zip
+      java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f /home/vsts/work/1/s/app/target/verademo.war || true
+    # VERACODE_API_ID and VERACODE_API_KEY environment variables must reference your API credentials.
+    # "|| true" specifies to continue build if Pipeline Scan discovers flaws.
+    # To fail the build for new flaws not listed in a baseline file, add an existing baseline file with "-bf <baseline filename>" and remove "|| true".
+- publish: $(System.DefaultWorkingDirectory)/results.json # Save the scan results as a file named results.json.
+  artifact: VeracodeBaseline
