@@ -32,8 +32,8 @@ stages:
 # Publish (upload) a file or directory as a named artifact for the current run.
     - task: PublishPipelineArtifact@1
       inputs:
-        targetPath: '$(System.ArtifactsDirectory)'
-        artifact: 'verademo.war'
+        targetPath: 'target/verademo.war'
+        artifact: 'drop'
         publishLocation: 'pipeline'
 
 - stage: SAST
@@ -45,8 +45,8 @@ stages:
     - task: DownloadPipelineArtifact@2
       inputs:
         buildType: 'current'
-        artifactName: 'verademo.war'
-        targetPath: '$(System.ArtifactsDirectory)/pipeline/'
+        artifactName: 'drop'
+        targetPath: '$(System.ArtifactsDirectory)'
     - task: Veracode@3
       displayName: 'Veracode upload and scan'
       inputs:
@@ -55,7 +55,7 @@ stages:
         apiKey: '$(VERACODE_API_KEY)'
         veracodeAppProfile: 'Teste Mateus Azure DevOps'
         version: '$(build.buildNumber)'
-        filepath: '$(System.ArtifactsDirectory)/verademo.war'
+        filepath: '$(System.ArtifactsDirectory)/drop/verademo.war'
         importResults: true
         maximumWaitTime: '360'
 
