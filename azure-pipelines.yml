@@ -2,46 +2,85 @@ trigger:
 - main
 pool:
   vmImage: 'ubuntu-latest'
-steps:
-- task: Maven@3
-  displayName: Build with Maven
-  inputs:
-    mavenPomFile: 'app/pom.xml'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: true
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: 'target/verademo.war'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+stages:
+- stage: Build with Maven
+  displayName: 'Build with Maven'
+  jobs:
+  - job: Build
+    steps: 
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        mavenOptions: '-Xmx3072m'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.8'
+        jdkArchitectureOption: 'x64'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        goals: 'package'
+    # https://learn.microsoft.com/pt-br/azure/devops/pipelines/tasks/reference/publish-build-artifacts-v1?view=azure-pipelines
+    # temos solução mais rapida, pesquisar e abrir documentação 
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publicando o .war'
+      inputs:
+        PathtoPublish: 'target/verademo.war'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
 
-# - task: Bash@3
-#   displayName: Veracode Pipeline Scan
+- stage: SAST
+  displayName: SAST
+  jobs:
+  - job: UploadAndScan
+    displayName: 'Upload and Scan'
+    steps:
+    - task: DownloadBuildArtifacts@1
+      displayName: 'Carregamento o .war'
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.ArtifactsDirectory)'
+    - task: Veracode@3
+      displayName: 'Veracode upload and scan'
+      inputs:
+        ConnectionDetailsSelection: 'Credentials'
+        apiId: '$(VERACODE_API_ID)'
+        apiKey: '$(VERACODE_API_KEY)'
+        veracodeAppProfile: 'Teste Mateus Azure DevOps'
+        version: '$(build.buildNumber)'
+        filepath: '$(System.ArtifactsDirectory)/drop/verademo.war'
+        importResults: true
+        maximumWaitTime: '360'
+
+# steps:
+# - task: Maven@3
+#   displayName: Build with Maven
 #   inputs:
-#     targetType: "inline"
-#     script: |
-#       curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
-#       unzip -o pipeline-scan-LATEST.zip
-#       java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f /home/vsts/work/1/s/app/target/verademo.war
-#     # "|| true" specifies to continue build if Pipeline Scan discovers flaws.
-#     # To fail the build for new flaws not listed in a baseline file, add an existing baseline file with "-bf <baseline filename>" and remove "|| true".
-# - publish: $(System.DefaultWorkingDirectory)/results.json # Save the scan results as a file named results.json.
-#   artifact: VeracodeBaseline
+#     mavenPomFile: 'app/pom.xml'
+#     mavenOptions: '-Xmx3072m'
+#     javaHomeOption: 'JDKVersion'
+#     jdkVersionOption: '1.8'
+#     jdkArchitectureOption: 'x64'
+#     publishJUnitResults: true
+#     testResultsFiles: '**/surefire-reports/TEST-*.xml'
+#     goals: 'package'
 
-- task: Veracode@3
-  inputs:
-    ConnectionDetailsSelection: 'Credentials'
-    apiId: '$(VERACODE_API_ID)'
-    apiKey: '$(VERACODE_API_KEY)'
-    veracodeAppProfile: 'Teste Mateus Azure DevOps'
-    version: '$(build.buildNumber)'
-    filepath: '$(System.ArtifactsDirectory)/drop/verademo.war'
-    importResults: true
-    maximumWaitTime: '360'
-    
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     PathtoPublish: 'target/verademo.war'
+#     ArtifactName: 'drop'
+#     publishLocation: 'Container'
+
+# # - task: Bash@3
+# #   displayName: Veracode Pipeline Scan
+# #   inputs:
+# #     targetType: "inline"
+# #     script: |
+# #       curl -sSO https://downloads.veracode.com/securityscan/pipeline-scan-LATEST.zip
+# #       unzip -o pipeline-scan-LATEST.zip
+# #       java -jar pipeline-scan.jar -vid $(VERACODE_API_ID) -vkey $(VERACODE_API_KEY) -f /home/vsts/work/1/s/app/target/verademo.war
+# #     # "|| true" specifies to continue build if Pipeline Scan discovers flaws.
+# #     # To fail the build for new flaws not listed in a baseline file, add an existing baseline file with "-bf <baseline filename>" and remove "|| true".
+# # - publish: $(System.DefaultWorkingDirectory)/results.json # Save the scan results as a file named results.json.
+# #   artifact: VeracodeBaseline
