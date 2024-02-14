@@ -40,8 +40,8 @@ stages:
       inputs:
         buildType: 'current'
         downloadType: 'single'
-        artifactName: 'drop'
-        downloadPath: '$(System.ArtifactsDirectory)'
+        artifactName: 'verademo.war'
+        downloadPath: '$(System.ArtifactsDirectory)/Container'
     - task: Veracode@3
       displayName: 'Veracode upload and scan'
       inputs:
@@ -50,7 +50,7 @@ stages:
         apiKey: '$(VERACODE_API_KEY)'
         veracodeAppProfile: 'Teste Mateus Azure DevOps'
         version: '$(build.buildNumber)'
-        filepath: '$(System.ArtifactsDirectory)/drop/verademo.war'
+        filepath: '$(System.ArtifactsDirectory)/Container/verademo.war'
         importResults: true
         maximumWaitTime: '360'
 
