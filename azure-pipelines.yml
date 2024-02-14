@@ -46,7 +46,7 @@ stages:
       inputs:
         buildType: 'current'
         artifactName: 'verademo.war'
-        targetPath: '$(System.ArtifactsDirectory)'
+        targetPath: '$(System.ArtifactsDirectory)/artefato_maven/'
     - task: Veracode@3
       displayName: 'Veracode upload and scan'
       inputs:
