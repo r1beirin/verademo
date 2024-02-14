@@ -25,7 +25,7 @@ stages:
     - task: PublishBuildArtifacts@1
       displayName: 'Publicando o .war'
       inputs:
-        PathtoPublish: 'target/verademo.war'
+        PathtoPublish: '$(System.ArtifactsDirectory)/verademo.war'
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
