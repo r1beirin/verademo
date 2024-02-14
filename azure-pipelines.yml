@@ -15,6 +15,12 @@ steps:
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
 
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: 'target/verademo.war'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
 # - task: Bash@3
 #   displayName: Veracode Pipeline Scan
 #   inputs:
@@ -35,6 +41,7 @@ steps:
     apiKey: '$(VERACODE_API_KEY)'
     veracodeAppProfile: 'Teste Mateus Azure DevOps'
     version: '$(build.buildNumber)'
-    filepath: '$(build.artifactstagingdirectory)'
+    filepath: '$(System.ArtifactsDirectory)/drop/verademo.war'
     importResults: true
     maximumWaitTime: '360'
+    
