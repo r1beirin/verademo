@@ -58,6 +58,9 @@ stages:
         veracodeAppProfile: 'Teste Mateus Azure DevOps'
         version: '$(build.buildNumber)'
         filepath: '$(System.ArtifactsDirectory)/verademo.war'
+        sandboxName: '$(build.buildNumber)'
+        createSandBox: true
+        failBuildIfUploadAndScanBuildStepFails: true
         importResults: true
         maximumWaitTime: '360'
 
