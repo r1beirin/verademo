@@ -5,12 +5,12 @@ pool:
 
 stages:
 - stage: Build
-  displayName: 'Build with Maven'
+  displayName: 'Build'
   jobs:
   - job: Build
     steps: 
     - task: Maven@3
-      displayName: Build with Maven
+      displayName: 'Buildando com o Maven'
       inputs:
         mavenPomFile: 'app/pom.xml'
         mavenOptions: '-Xmx3072m'
@@ -31,6 +31,7 @@ stages:
 # Publish Pipeline Artifacts v1
 # Publish (upload) a file or directory as a named artifact for the current run.
     - task: PublishPipelineArtifact@1
+      displayName: 'Publicando o .war'
       inputs:
         targetPath: 'app/target/verademo.war'
         artifact: 'drop'
@@ -43,6 +44,7 @@ stages:
     displayName: 'Upload and Scan'
     steps:
     - task: DownloadPipelineArtifact@2
+      displayName: 'Baixando o .war'
       inputs:
         buildType: 'current'
         artifactName: 'drop'
