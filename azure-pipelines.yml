@@ -37,7 +37,9 @@ stages:
     - task: CmdLine@2
       inputs:
       # podemos fazer um step antes para testar o ambiente do agente instalado usando sh -s -- test
-        script: 'curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan --update-advisor'
+        script: | 
+          export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
+          curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan --update-advisor
 
 
 - stage: SAST
