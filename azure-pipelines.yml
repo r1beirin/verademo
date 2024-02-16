@@ -20,16 +20,7 @@ stages:
         publishJUnitResults: true
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'package'
-    # https://learn.microsoft.com/pt-br/azure/devops/pipelines/tasks/reference/publish-build-artifacts-v1?view=azure-pipelines
-    # temos solução mais rapida, pesquisar e abrir documentação 
-    # - task: PublishBuildArtifacts@1
-    #   displayName: 'Publicando o .war'
-    #   inputs:
-    #     PathtoPublish: '$(System.ArtifactsDirectory)'
-    #     ArtifactName: 'verademo.war'
-    #     publishLocation: 'Container'
-# Publish Pipeline Artifacts v1
-# Publish (upload) a file or directory as a named artifact for the current run.
+
     - task: PublishPipelineArtifact@1
       displayName: 'Publicando o .war'
       inputs:
@@ -37,8 +28,20 @@ stages:
         artifact: 'drop'
         publishLocation: 'pipeline'
 
+- stage: SCA
+  displayName: 'SCA'
+  jobs:
+  - job: SCA
+    displayName: 'SCA'
+    steps:
+    - task: CmdLine@2
+      inputs:
+      # podemos fazer um step antes para testar o ambiente do agente instalado usando sh -s -- test
+        script: 'curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan --update-advisor'
+
+
 - stage: SAST
-  displayName: SAST
+  displayName: 'SAST'
   jobs:
   - job: UploadAndScan
     displayName: 'Upload and Scan'
