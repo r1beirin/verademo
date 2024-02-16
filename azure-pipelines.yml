@@ -29,24 +29,20 @@ stages:
         publishLocation: 'pipeline'
 
 - stage: SCA
-  displayName: SCA
-  dependsOn:
+  displayName: 'SCA'
   jobs:
   - job: SCA
-    displayName: 'Veracode SCA'
+    displayName: 'SCA'
     steps:
-    - task: CmdLine@2
-      inputs:
-        script: |
-          curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty
-      displayName: 'Resultados SCA'
-
-# - stage: SCA
-#   displayName: 'SCA'
-#   jobs:
-#   - job: SCA
-#     displayName: 'SCA'
-#     steps:
+    - script: |
+        export SRCCLR_SCM_URI=$(Build.Repository.Uri)
+        export SRCCLR_SCM_REF=$(Build.SourceBranchName)
+        export SRCCLR_SCM_REF_TYPE="branch"
+        export SRCCLR_SCM_REV=$(Build.SourceVersion)
+        export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
+        curl -sSL https://download.sourceclear.com/ci.sh | bash -s test --pip
+        curl -sSL https://download.sourceclear.com/ci.sh | bash -s scan . --update-advisor
+        displayName: 'Veracode SCA Agent-Based'
 #     - script: curl -sSL  https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --quick --ws $(WORKSPACE_SLUG)
 #     #- script: curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --update-advisor --debug
 #       # env:
