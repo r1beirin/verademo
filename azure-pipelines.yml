@@ -34,7 +34,7 @@ stages:
   - job: SCA
     displayName: 'SCA'
     steps:
-    - script: curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --update-advisor --scan-collectors "maven" --debug
+    - script: curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --update-advisor --debug
       # env:
       #   SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
       #   SRCCLR_SCM_REF_TYPE='branch'
