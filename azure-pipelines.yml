@@ -43,7 +43,7 @@ stages:
           export SRCCLR_SCM_REF=$(Build.SourceBranchName)
           export SRCCLR_SCM_REF_TYPE='branch'
           export SRCCLR_SCM_REV=$(Build.SourceVersion) 
-          curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan --update-advisor
+          curl -sSL https://download.sourceclear.com/ci.sh | bash -s -- scan --update-advisor
 
 
 - stage: SAST
