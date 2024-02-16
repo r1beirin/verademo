@@ -28,13 +28,13 @@ stages:
         artifact: 'drop'
         publishLocation: 'pipeline'
 
-# - stage: SCA
-#   displayName: 'SCA'
-#   jobs:
-#   - job: SCA
-#     displayName: 'SCA'
-#     steps:
-#       - script: curl -sSL  https://download.sourceclear.com/ci.sh | sh -s -- scan $(System.ArtifactsDirectory)/verademo.war
+- stage: SCA
+  displayName: 'SCA'
+  jobs:
+  - job: SCA
+    displayName: 'SCA'
+    steps:
+      - script: curl -sSL  https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --ws='Azure Devops'
 #     #- script: curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --update-advisor --debug
 #       # env:
 #       #   SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
@@ -64,11 +64,6 @@ stages:
         buildType: 'current'
         artifactName: 'drop'
         targetPath: '$(System.ArtifactsDirectory)'
-    - task: Bash@3
-      displayName: 'SCA'
-      inputs:
-        targetType: 'inline'
-        script: 'curl -sSL  https://download.sourceclear.com/ci.sh | sh -s -- scan $(System.ArtifactsDirectory)/verademo.war'
     - task: Veracode@3
       displayName: 'Veracode upload and scan'
       inputs:
