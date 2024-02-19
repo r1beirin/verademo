@@ -34,7 +34,7 @@ stages:
   - job: SCA
     displayName: 'SCA'
     steps:
-      - script: curl -sSL  https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --ws='Azure Devops'
+      - script: curl -sSL  https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory)
 #     #- script: curl -sSL https://download.sourceclear.com/ci.sh | sh -s -- scan $(Build.SourcesDirectory) --update-advisor --debug
 #       # env:
 #       #   SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
