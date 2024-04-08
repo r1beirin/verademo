@@ -37,6 +37,7 @@ stages:
     - task: CmdLine@2
       inputs:
         script: |
+          export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
           curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty
       displayName: 'Resultados SCA'
       continueOnError: true
