@@ -4,40 +4,56 @@ pool:
   vmImage: 'ubuntu-latest'
 
 stages:
-- stage: Build
-  jobs:
-  - job: Build
-    steps: 
-    - task: Maven@3
-      displayName: 'Buildando com o Maven'
-      inputs:
-        mavenPomFile: 'app/pom.xml'
-        mavenOptions: '-Xmx3072m'
-        javaHomeOption: 'JDKVersion'
-        jdkVersionOption: '1.8'
-        jdkArchitectureOption: 'x64'
-        publishJUnitResults: true
-        testResultsFiles: '**/surefire-reports/TEST-*.xml'
-        goals: 'package'
-
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publicando o .war'
-      inputs:
-        targetPath: 'app/target/verademo.war'
-        artifact: 'drop'
-        publishLocation: 'pipeline'
-
 - stage: SCA
   displayName: SCA
-  dependsOn: Build
+  dependsOn:
   jobs:
-  - job: SCA
-    displayName: 'Veracode SCA'
-    steps:
+  - job: AgentBased
+    steps: 
     - task: CmdLine@2
       inputs:
         script: |
-          export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
-          curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty
-      displayName: 'Resultados SCA'
+          export SRCCLR_SCM_TYPE="GITHUB"
+          export SRCCLR_SCM_TOKEN="$(tokenGitHub)"
+          curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty --debug
+      displayName: 'Veracode SCA'
       continueOnError: true
+
+# stages:
+# - stage: Build
+#   jobs:
+#   - job: Build
+#     steps: 
+#     - task: Maven@3
+#       displayName: 'Buildando com o Maven'
+#       inputs:
+#         mavenPomFile: 'app/pom.xml'
+#         mavenOptions: '-Xmx3072m'
+#         javaHomeOption: 'JDKVersion'
+#         jdkVersionOption: '1.8'
+#         jdkArchitectureOption: 'x64'
+#         publishJUnitResults: true
+#         testResultsFiles: '**/surefire-reports/TEST-*.xml'
+#         goals: 'package'
+
+#     - task: PublishPipelineArtifact@1
+#       displayName: 'Publicando o .war'
+#       inputs:
+#         targetPath: 'app/target/verademo.war'
+#         artifact: 'drop'
+#         publishLocation: 'pipeline'
+
+# - stage: SCA
+#   displayName: SCA
+#   dependsOn: Build
+#   jobs:
+#   - job: SCA
+#     displayName: 'Veracode SCA'
+#     steps:
+#     - task: CmdLine@2
+#       inputs:
+#         script: |
+#           export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
+#           curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty
+#       displayName: 'Resultados SCA'
+#       continueOnError: true
