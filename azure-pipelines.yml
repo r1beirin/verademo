@@ -4,17 +4,12 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-
-- task: PowerShell@2
+- task: VeracodeCommunityScaAdoExtension@1
   inputs:
-    targetType: 'inline'
-    script: |
-      iex ((New-Object System.Net.WebClient).DownloadString('https://download.srcclr.com/ci.ps1'))
-      srcclr scan --update-advisor --allow-dirty
-  env:
-    $Env: SRCCLR_API_TOKEN
-  displayName: 'Veracode SCA'
-  continueOnError: true
+    scanType: 'url'
+    scanTarget: 'https://github.com/r1beirin/verademo'
+    minCVSS: '5'
+    testAgent: true
 # stages:
 # - stage: SCA
 #   displayName: SCA
