@@ -41,7 +41,11 @@ stages:
           curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty
       displayName: 'Resultados SCA'
       continueOnError: true
-
+    - task: VeracodeCommunityScaAdoExtension@1
+      inputs:
+        scanType: 'directory'
+        scanTarget: '.'
+        minCVSS: '5'
 
 # - stage: SAST
 #   displayName: 'SAST'
