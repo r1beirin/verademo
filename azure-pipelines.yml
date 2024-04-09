@@ -6,10 +6,9 @@ pool:
 steps:
 - task: VeracodeCommunityScaAdoExtension@1
   inputs:
-    scanType: 'url'
-    scanTarget: 'https://github.com/r1beirin/verademo'
+    scanType: 'directory'
+    scanTarget: '.'
     minCVSS: '5'
-    testAgent: true
 # stages:
 # - stage: SCA
 #   displayName: SCA
