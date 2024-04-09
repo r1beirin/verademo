@@ -9,6 +9,11 @@ steps:
     scanType: 'directory'
     scanTarget: '.'
     minCVSS: '5'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      /usr/bin/curl -sSL https://download.sourceclear.com/ci.sh | /usr/bin/sh -s -- scan . --recursive
 # stages:
 # - stage: SCA
 #   displayName: SCA
