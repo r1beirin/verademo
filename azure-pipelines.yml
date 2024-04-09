@@ -1,23 +1,35 @@
 trigger:
 - main
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
-stages:
-- stage: SCA
-  displayName: SCA
-  dependsOn:
-  jobs:
-  - job: AgentBased
-    steps: 
-    - task: CmdLine@2
-      inputs:
-        script: |
-          export SRCCLR_SCM_TYPE="GITHUB"
-          export SRCCLR_SCM_TOKEN="$(tokenGitHub)"
-          curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty --debug
-      displayName: 'Veracode SCA'
-      continueOnError: true
+steps:
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      iex ((New-Object System.Net.WebClient).DownloadString('https://download.srcclr.com/ci.ps1'))
+      srcclr scan --update-advisor --allow-dirty
+  env:
+    $Env: SRCCLR_API_TOKEN
+  displayName: 'Veracode SCA'
+  continueOnError: true
+# stages:
+# - stage: SCA
+#   displayName: SCA
+#   dependsOn:
+#   jobs:
+#   - job: AgentBased
+#     steps: 
+#     - task: CmdLine@2
+#       inputs:
+#         script: |
+#           export SRCCLR_SCM_TYPE="GITHUB"
+#           export SRCCLR_SCM_TOKEN="$(tokenGitHub)"
+#           curl -sSL https://download.sourceclear.com/ci.sh | bash -s – scan --update-advisor --allow-dirty --debug
+#       displayName: 'Veracode SCA'
+#       continueOnError: true
 
 # stages:
 # - stage: Build
