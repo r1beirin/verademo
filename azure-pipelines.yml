@@ -3,6 +3,10 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  veracodeAppProfile: AzDevOps.$(Build.DefinitionName)
+  caminhoPacote: $(System.ArtifactsDirectory)/drop/verademo.war
+
 stages:
 - stage: Build
   jobs:
@@ -27,8 +31,7 @@ stages:
         artifact: 'drop'
         publishLocation: 'pipeline'
 
-- stage: SCA
-  displayName: SCA
+- stage: SAST
   dependsOn: Build
   jobs:
   - job: SCA
@@ -40,4 +43,42 @@ stages:
           export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
           /usr/bin/curl -sSL https://download.sourceclear.com/ci.sh | /usr/bin/sh -s -- scan . --recursive
       displayName: 'Resultados SCA'
-      continueOnError: true 
+      continueOnError: true
+  - job: Wrapper
+    displayName: 'Veracode U&S'
+    steps:
+    - task: DownloadBuildArtifacts@1
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.ArtifactsDirectory)'
+      displayName: 'Carregando arquivos'
+    - task: Veracode@3
+      inputs:
+        ConnectionDetailsSelection: 'Credentials'
+        apiId: '$(VeracodeID)'
+        apiKey: '$(VeracodeKey)'
+        veracodeAppProfile: '$(veracodeAppProfile)'
+        version: '$(build.buildNumber)'
+        filepath: '$(caminhoPacote)'
+        createSandBox: false
+        createProfile: true
+        importResults: false
+        failBuildOnPolicyFail: false
+      displayName: 'Veracode U&S'
+    - task: Veracode Flaw Importer@3
+      inputs:
+        ConnectionDetailsSelection: 'Credentials'
+        apiId: 'VeracodeID'
+        apiKey: 'VeracodeKey'
+        veracodeAppProfile: '$(veracodeAppProfile)'
+        sandboxName: 
+        scanType: 'Static, SCA'
+        importType: 'All Unmitigated Flaws Violating Policy'
+        workItemType: 'Task'
+        area: '$(system.teamProject)'
+        overwriteAreaPathInWorkItemsOnImport: true
+        iterationPath: '$(system.teamProject)'
+        overwriteIterationPath: true
+        flawImportLimit: '1000'
