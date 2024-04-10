@@ -40,16 +40,4 @@ stages:
           export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
           /usr/bin/curl -sSL https://download.sourceclear.com/ci.sh | /usr/bin/sh -s -- scan . --recursive
       displayName: 'Resultados SCA'
-      continueOnError: true # Se false, a pipeline quebra.
-
-# steps:
-# - task: VeracodeCommunityScaAdoExtension@1
-#   inputs:
-#     scanType: 'directory'
-#     scanTarget: '.'
-#     minCVSS: '5'
-
-# - task: CmdLine@2
-#   inputs:
-#     script: |
-#       /usr/bin/curl -sSL https://download.sourceclear.com/ci.sh | /usr/bin/sh -s -- scan . --recursive
+      continueOnError: true 
