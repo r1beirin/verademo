@@ -26,7 +26,7 @@ stages:
 
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: 'target/verademo.war'
+        PathtoPublish: 'app/target/verademo.war'
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
