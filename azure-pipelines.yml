@@ -24,12 +24,11 @@ stages:
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'package'
 
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publicando o .war'
+    - task: PublishBuildArtifacts@1
       inputs:
-        targetPath: 'app/target/verademo.war'
-        artifact: 'drop'
-        publishLocation: 'pipeline'
+        PathtoPublish: 'target/verademo.war'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
 
 - stage: SAST
   dependsOn: Build
