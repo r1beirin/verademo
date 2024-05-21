@@ -52,5 +52,6 @@ stages:
         filepath: '$(System.ArtifactsDirectory)/verademo.war'
         createSandBox: false
         failBuildIfUploadAndScanBuildStepFails: true
+        failBuildOnPolicyFail: false
         importResults: true
         maximumWaitTime: '360'
