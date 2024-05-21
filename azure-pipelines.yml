@@ -1,7 +1,8 @@
 trigger:
 - main
+
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 variables:
   veracodeAppProfile: AzDevOps.$(Build.DefinitionName)
@@ -9,13 +10,13 @@ variables:
 
 stages:
 - stage: Build
+  displayName: Build
   jobs:
   - job: Build
     steps: 
     - task: Maven@3
-      displayName: 'Buildando com o Maven'
       inputs:
-        mavenPomFile: 'app/pom.xml'
+        mavenPomFile: 'pom.xml'
         mavenOptions: '-Xmx3072m'
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: '1.8'
@@ -30,20 +31,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-# - stage: SAST
-#   dependsOn: Build
-#   jobs:
-#   - job: SCA
-#     displayName: 'Veracode SCA'
-#     steps:
-#     - task: CmdLine@2
-#       inputs:
-#         script: |
-#           export SRCCLR_API_TOKEN=$(SRCCLR_API_TOKEN)
-#           /usr/bin/curl -sSL https://download.sourceclear.com/ci.sh | /usr/bin/sh -s -- scan . --recursive
-#       displayName: 'Resultados SCA'
-#       continueOnError: true
-  - job: Wrapper
+  - job: SAST
     displayName: 'Veracode U&S'
     steps:
     - task: DownloadBuildArtifacts@1
@@ -56,28 +44,15 @@ stages:
     - task: Veracode@3
       inputs:
         ConnectionDetailsSelection: 'Credentials'
-        apiId: '$(VERACODE_API_ID)'
-        apiKey: '$(VERACODE_API_KEY)'
+        apiId: '$(VeracodeID)'
+        apiKey: '$(VeracodeKey)'
         veracodeAppProfile: '$(veracodeAppProfile)'
         version: '$(build.buildNumber)'
         filepath: '$(caminhoPacote)'
         createSandBox: false
         createProfile: true
+        failTheBuildIfVeracodeScanDidNotInitiate: false
+        scanStatusCheckInterval: '60'
         importResults: false
         failBuildOnPolicyFail: false
       displayName: 'Veracode U&S'
-    # - task: Veracode Flaw Importer@3
-    #   inputs:
-    #     ConnectionDetailsSelection: 'Credentials'
-    #     apiId: 'VeracodeID'
-    #     apiKey: 'VeracodeKey'
-    #     veracodeAppProfile: '$(veracodeAppProfile)'
-    #     sandboxName: 
-    #     scanType: 'Static, SCA'
-    #     importType: 'All Unmitigated Flaws Violating Policy'
-    #     workItemType: 'Task'
-    #     area: '$(system.teamProject)'
-    #     overwriteAreaPathInWorkItemsOnImport: true
-    #     iterationPath: '$(system.teamProject)'
-    #     overwriteIterationPath: true
-    #     flawImportLimit: '1000'
