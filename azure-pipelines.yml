@@ -2,21 +2,18 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
-
-variables:
-  veracodeAppProfile: AzDevOps.$(Build.DefinitionName)
-  caminhoPacote: $(System.ArtifactsDirectory)/drop/verademo.war
+  vmImage: 'ubuntu-latest'
 
 stages:
 - stage: Build
-  displayName: Build
+  displayName: 'Build'
   jobs:
   - job: Build
     steps: 
     - task: Maven@3
+      displayName: 'Buildando com o Maven'
       inputs:
-        mavenPomFile: 'pom.xml'
+        mavenPomFile: 'app/pom.xml'
         mavenOptions: '-Xmx3072m'
         javaHomeOption: 'JDKVersion'
         jdkVersionOption: '1.8'
@@ -25,34 +22,35 @@ stages:
         testResultsFiles: '**/surefire-reports/TEST-*.xml'
         goals: 'package'
 
-    - task: PublishBuildArtifacts@1
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publicando o .war'
       inputs:
-        PathtoPublish: 'app/target/verademo.war'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
+        targetPath: 'app/target/verademo.war'
+        artifact: 'drop'
+        publishLocation: 'pipeline'
 
-  - job: SAST
-    displayName: 'Veracode U&S'
+- stage: SAST
+  displayName: SAST
+  jobs:
+  - job: UploadAndScan
+    displayName: 'Upload and Scan'
     steps:
-    - task: DownloadBuildArtifacts@1
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Baixando o .war'
       inputs:
         buildType: 'current'
-        downloadType: 'single'
         artifactName: 'drop'
-        downloadPath: '$(System.ArtifactsDirectory)'
-      displayName: 'Carregando arquivos'
+        targetPath: '$(System.ArtifactsDirectory)'
     - task: Veracode@3
+      displayName: 'Veracode upload and scan'
       inputs:
         ConnectionDetailsSelection: 'Credentials'
-        apiId: '$(VeracodeID)'
-        apiKey: '$(VeracodeKey)'
+        apiId: '$(VERACODE_API_ID)'
+        apiKey: '$(VERACODE_API_KEY)'
         veracodeAppProfile: '$(veracodeAppProfile)'
         version: '$(build.buildNumber)'
-        filepath: '$(caminhoPacote)'
+        filepath: '$(System.ArtifactsDirectory)/verademo.war'
         createSandBox: false
-        createProfile: true
-        failTheBuildIfVeracodeScanDidNotInitiate: false
-        scanStatusCheckInterval: '60'
-        importResults: false
-        failBuildOnPolicyFail: false
-      displayName: 'Veracode U&S'
+        failBuildIfUploadAndScanBuildStepFails: true
+        importResults: true
+        maximumWaitTime: '360'
