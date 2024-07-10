@@ -14,7 +14,7 @@ jobs:
           distribution: 'temurin'
           java-version: '11'
       - name: Build with Maven
-        run: mvn package
+        run: mvn package -f app/pom.xml
       - name: Publicando Artefato
         uses: actions/upload-artifact@v2
         with:
